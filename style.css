@@ -104,6 +104,7 @@ button:focus-visible, input:focus-visible {
 .brand:hover .brand-mark { transform: rotate(-8deg) scale(1.08); }
 .brand-text { font-weight: 500; font-size: 18px; letter-spacing: -.01em; display: flex; flex-direction: column; line-height: 1.05; }
 .brand-text b { font-weight: 800; font-size: 18px; }
+.top-actions { display: flex; align-items: center; gap: 10px; }
 
 .icon-btn {
   position: relative;
@@ -117,6 +118,9 @@ button:focus-visible, input:focus-visible {
 }
 .icon-btn:hover { transform: rotate(14deg) scale(1.06); border-color: var(--accent); }
 .icon-btn svg { position: absolute; width: 22px; height: 22px; transition: transform .5s var(--ease), opacity .3s; }
+.i-sound-off { opacity: 0; transform: scale(.5); }
+.icon-btn.is-muted .i-sound-on { opacity: 0; transform: scale(.5); }
+.icon-btn.is-muted .i-sound-off { opacity: 1; transform: scale(1); }
 html[data-theme="light"] .i-moon { opacity: 0; transform: rotate(-90deg) scale(.4); }
 html[data-theme="dark"] .i-sun { opacity: 0; transform: rotate(90deg) scale(.4); }
 
@@ -437,10 +441,84 @@ html[data-theme="dark"] .btn { border-color: var(--line-strong); }
 
 .cap-foot { margin-top: 26px; font: 500 11px var(--mono); letter-spacing: .18em; text-transform: uppercase; color: var(--muted); }
 
-/* ============ ТОСТ / КОНФЕТТИ ============ */
-#confetti { position: fixed; inset: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 60; }
+/* ============ НАГРАЖДЕНИЕ / ТОСТ / КОНФЕТТИ ============ */
+body.ceremony-open { overflow: hidden; }
+.ceremony {
+  position: fixed; inset: 0; z-index: 80;
+  display: grid; place-items: center;
+  padding: 24px;
+  background: rgba(7, 10, 8, .76);
+  backdrop-filter: blur(8px);
+  opacity: 0;
+  transition: opacity .35s ease;
+}
+.ceremony.show { opacity: 1; }
+.ceremony-card {
+  position: relative;
+  width: min(760px, 100%);
+  padding: 38px 38px 30px;
+  overflow: hidden;
+  border: 1.5px solid var(--gold);
+  border-radius: 28px;
+  background: var(--bg);
+  box-shadow: 0 30px 90px rgba(0, 0, 0, .55), inset 0 1px 0 rgba(255, 255, 255, .08);
+  text-align: center;
+  transform: translateY(28px) scale(.94);
+  transition: transform .7s var(--ease);
+}
+.ceremony.show .ceremony-card { transform: none; }
+.ceremony-card::before {
+  content: '';
+  position: absolute; inset: -45% 12% auto;
+  height: 280px;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--gold-soft), transparent 68%);
+  pointer-events: none;
+}
+.ceremony-close {
+  position: absolute; top: 16px; right: 16px; z-index: 2;
+  width: 38px; height: 38px;
+  border: 1px solid var(--line-strong); border-radius: 50%;
+  background: var(--surface);
+  font: 500 25px/1 var(--font);
+}
+.ceremony-kicker { position: relative; font: 500 11px var(--mono); letter-spacing: .2em; text-transform: uppercase; color: var(--gold-ink); }
+.ceremony h2 { position: relative; margin-top: 5px; font-size: clamp(34px, 6vw, 58px); line-height: 1; letter-spacing: -.045em; }
+.ceremony-subtitle { position: relative; margin-top: 9px; color: var(--muted); }
+.ceremony-podium { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; align-items: end; margin-top: 32px; min-height: 260px; }
+.ceremony-winner {
+  position: relative;
+  display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 7px;
+  padding: 22px 12px;
+  border: 1.5px solid var(--line-strong); border-radius: 18px 18px 10px 10px;
+  background: var(--surface);
+  opacity: 0;
+  transform: translateY(130px) scale(.88);
+}
+.ceremony-winner.place-1 { min-height: 230px; border-color: var(--gold); background: var(--gold-soft); }
+.ceremony-winner.place-2 { min-height: 184px; }
+.ceremony-winner.place-3 { min-height: 152px; }
+.ceremony.show .place-3 { animation: podiumRise .75s .25s var(--ease) forwards; }
+.ceremony.show .place-2 { animation: podiumRise .75s .85s var(--ease) forwards; }
+.ceremony.show .place-1 { animation: podiumChampion .95s 1.45s cubic-bezier(.2, 1.35, .35, 1) forwards; }
+.ceremony-winner svg { width: 38px; height: 38px; fill: var(--gold); }
+.ceremony-medal { font: 500 clamp(30px, 5vw, 48px)/1 var(--mono); }
+.ceremony-winner strong { width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: clamp(14px, 2.4vw, 21px); }
+.ceremony-winner > span:last-child { font: 500 10px var(--mono); letter-spacing: .16em; text-transform: uppercase; color: var(--muted); }
+.place-1 .ceremony-medal { color: var(--gold-ink); }
+.place-2 .ceremony-medal { color: var(--silver); }
+.place-3 .ceremony-medal { color: var(--bronze); }
+.ceremony-done { position: relative; margin-top: 24px; min-width: 160px; }
+@keyframes podiumRise { to { opacity: 1; transform: none; } }
+@keyframes podiumChampion {
+  0% { opacity: 0; transform: translateY(140px) scale(.82); }
+  70% { opacity: 1; transform: translateY(-10px) scale(1.04); }
+  100% { opacity: 1; transform: none; }
+}
+
+#confetti { position: fixed; inset: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 100; }
 .toast {
-  position: fixed; left: 50%; bottom: 26px; z-index: 70;
+  position: fixed; left: 50%; bottom: 26px; z-index: 110;
   display: flex; align-items: center; gap: 16px;
   padding: 12px 14px 12px 18px;
   background: var(--ink); color: var(--bg);
@@ -476,7 +554,15 @@ html[data-theme="dark"] .btn { border-color: var(--line-strong); }
   .toolbar { position: static; }
   .tb-right { width: 100%; }
   .tb-right .btn { flex: 1; padding: 0 10px; }
+  .ceremony { padding: 12px; }
+  .ceremony-card { padding: 34px 14px 22px; border-radius: 22px; }
+  .ceremony-podium { gap: 7px; min-height: 220px; }
+  .ceremony-winner { padding: 16px 7px; }
+  .ceremony-winner.place-1 { min-height: 202px; }
+  .ceremony-winner.place-2 { min-height: 164px; }
+  .ceremony-winner.place-3 { min-height: 138px; }
 }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+  .ceremony.show .ceremony-winner { opacity: 1; transform: none; animation-delay: 0s !important; }
 }

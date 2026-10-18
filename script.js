@@ -50,9 +50,108 @@
     picks: {},     // 'r-m' | 'third' -> id победителя
     rounds: [],    // вычисляется
     third: null,   // вычисляется
-    champId: null,
+    celebrationKey: null,
   };
   let refs = { m: {}, links: [] };
+
+  /* ================== ЗВУК ================== */
+  let audioContext = null;
+  let audioEnabled = true;
+  let musicRun = 0;
+  const musicNodes = new Set();
+
+  try { audioEnabled = localStorage.getItem('ts-sound') !== 'off'; } catch {}
+
+  function getAudioContext() {
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    if (!AudioCtx) return null;
+    if (!audioContext) audioContext = new AudioCtx();
+    if (audioContext.state === 'suspended') audioContext.resume().catch(() => {});
+    return audioContext;
+  }
+
+  function tone(frequency, at, duration, volume, type = 'triangle', musical = false) {
+    const ctx = getAudioContext();
+    if (!ctx) return;
+    const oscillator = ctx.createOscillator();
+    const gain = ctx.createGain();
+    oscillator.type = type;
+    oscillator.frequency.setValueAtTime(frequency, at);
+    gain.gain.setValueAtTime(.0001, at);
+    gain.gain.exponentialRampToValueAtTime(volume, at + Math.min(.035, duration / 3));
+    gain.gain.exponentialRampToValueAtTime(.0001, at + duration);
+    oscillator.connect(gain).connect(ctx.destination);
+    if (musical) {
+      musicNodes.add(oscillator);
+      oscillator.addEventListener('ended', () => musicNodes.delete(oscillator), { once: true });
+    }
+    oscillator.start(at);
+    oscillator.stop(at + duration + .04);
+  }
+
+  function playClick() {
+    if (!audioEnabled) return;
+    const ctx = getAudioContext();
+    if (!ctx) return;
+    const now = ctx.currentTime;
+    const oscillator = ctx.createOscillator();
+    const gain = ctx.createGain();
+    oscillator.type = 'sine';
+    oscillator.frequency.setValueAtTime(720, now);
+    oscillator.frequency.exponentialRampToValueAtTime(430, now + .055);
+    gain.gain.setValueAtTime(.035, now);
+    gain.gain.exponentialRampToValueAtTime(.0001, now + .06);
+    oscillator.connect(gain).connect(ctx.destination);
+    oscillator.start(now);
+    oscillator.stop(now + .065);
+  }
+
+  function stopVictoryMusic() {
+    musicRun++;
+    musicNodes.forEach(node => { try { node.stop(); } catch {} });
+    musicNodes.clear();
+  }
+
+  function playVictoryMusic() {
+    if (!audioEnabled) return;
+    stopVictoryMusic();
+    const ctx = getAudioContext();
+    if (!ctx) return;
+    const startAt = ctx.currentTime + .08;
+    const melody = [
+      [0, 523.25, .24], [.26, 659.25, .24], [.52, 783.99, .32], [.88, 1046.50, .58],
+      [1.52, 987.77, .24], [1.78, 783.99, .24], [2.04, 659.25, .34],
+      [2.44, 783.99, .24], [2.70, 880.00, .24], [2.96, 987.77, .34], [3.38, 1046.50, 1.05],
+    ];
+    melody.forEach(([offset, frequency, duration]) => tone(frequency, startAt + offset, duration, .055, 'triangle', true));
+    [[0, 130.81, 1.35], [1.50, 196.00, 1.7], [3.30, 130.81, 1.2]].forEach(([offset, frequency, duration]) => {
+      tone(frequency, startAt + offset, duration, .025, 'sine', true);
+    });
+  }
+
+  function syncSoundButton() {
+    const button = $('#soundToggle');
+    button.classList.toggle('is-muted', !audioEnabled);
+    button.setAttribute('aria-pressed', String(audioEnabled));
+    button.setAttribute('aria-label', audioEnabled ? 'Выключить звук' : 'Включить звук');
+    button.title = audioEnabled ? 'Звук включён' : 'Звук выключен';
+  }
+
+  $('#soundToggle').addEventListener('click', () => {
+    audioEnabled = !audioEnabled;
+    try { localStorage.setItem('ts-sound', audioEnabled ? 'on' : 'off'); } catch {}
+    if (audioEnabled) playClick();
+    else stopVictoryMusic();
+    syncSoundButton();
+  });
+
+  document.addEventListener('click', event => {
+    const button = event.target.closest('button');
+    if (!button || button.disabled || button.id === 'soundToggle') return;
+    playClick();
+  }, true);
+
+  syncSoundButton();
 
   /* ================== ТЕМА ================== */
   $('#themeToggle').addEventListener('click', () => {
@@ -155,6 +254,7 @@
 
   /* ================== ПЕРЕКЛЮЧЕНИЕ ЭКРАНОВ ================== */
   function show(id) {
+    if (id === 'setup') closeCeremony();
     $$('.view').forEach(v => v.classList.toggle('active', v.id === id));
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
@@ -312,7 +412,8 @@
 
     // сброс подиума
     $$('#podium .step').forEach(s => { s.classList.remove('filled'); $('.pname', s).textContent = '—'; });
-    state.champId = null;
+    state.celebrationKey = null;
+    closeCeremony();
 
     update(true);
     requestAnimationFrame(drawLinks);
@@ -364,6 +465,55 @@
     el.classList.toggle('filled', !!team);
   }
 
+  /* ================== ФИНАЛЬНОЕ НАГРАЖДЕНИЕ ================== */
+  let ceremonyHideTimer;
+  let ceremonyFxTimer;
+  let ceremonyFocus = null;
+
+  function closeCeremony() {
+    const ceremony = $('#ceremony');
+    clearTimeout(ceremonyFxTimer);
+    stopVictoryMusic();
+    if (ceremony.hidden) return;
+    ceremony.classList.remove('show');
+    ceremony.setAttribute('aria-hidden', 'true');
+    document.body.classList.remove('ceremony-open');
+    clearTimeout(ceremonyHideTimer);
+    ceremonyHideTimer = setTimeout(() => {
+      ceremony.hidden = true;
+      if (ceremonyFocus?.focus) ceremonyFocus.focus({ preventScroll: true });
+    }, 360);
+  }
+
+  function celebrateWinners(first, second, third) {
+    const ceremony = $('#ceremony');
+    clearTimeout(ceremonyHideTimer);
+    clearTimeout(ceremonyFxTimer);
+    ceremonyFocus = document.activeElement;
+    $('#ceremonyFirst').textContent = first.name;
+    $('#ceremonySecond').textContent = second.name;
+    $('#ceremonyThird').textContent = third.name;
+    ceremony.hidden = false;
+    ceremony.setAttribute('aria-hidden', 'false');
+    document.body.classList.add('ceremony-open');
+    ceremony.classList.remove('show');
+    void ceremony.offsetWidth;
+    ceremony.classList.add('show');
+    playVictoryMusic();
+    ceremonyFxTimer = setTimeout(() => {
+      if (ceremony.classList.contains('show')) confetti();
+    }, matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 1350);
+  }
+
+  $('#ceremonyClose').addEventListener('click', closeCeremony);
+  $('#ceremonyDone').addEventListener('click', closeCeremony);
+  $('#ceremony').addEventListener('click', event => {
+    if (event.target === event.currentTarget) closeCeremony();
+  });
+  document.addEventListener('keydown', event => {
+    if (event.key === 'Escape' && !$('#ceremony').hidden) closeCeremony();
+  });
+
   function paintMeta(initial) {
     const R = state.rounds.length;
     const fin = state.rounds[R - 1][0];
@@ -384,9 +534,11 @@
     setStep('.s2', second);
     setStep('.s3', third);
 
-    const id = champ ? champ.id : null;
-    if (id !== null && id !== state.champId && !initial) confetti();
-    state.champId = id;
+    const celebrationKey = champ && second && third ? `${champ.id}:${second.id}:${third.id}` : null;
+    if (celebrationKey && celebrationKey !== state.celebrationKey && !initial) {
+      celebrateWinners(champ, second, third);
+    }
+    state.celebrationKey = celebrationKey;
   }
 
   function update(initial = false) {
