@@ -987,11 +987,20 @@
       svg.setAttribute('aria-hidden', 'true');
       host.appendChild(svg);
       host.appendChild(roundsLane('', state.rounds, (index, total) => roundName(index, total)));
-      const thirdHost = $('#thirdHost');
-      thirdHost.innerHTML = '';
-      thirdHost.appendChild(makeMatchV2('third', state.rounds.length * 120));
-      $('#thirdSection').hidden = false;
-      $('.bottom').classList.remove('no-third');
+      const finalRound = $('.round:last-child', host);
+      const inlineThird = document.createElement('div');
+      inlineThird.className = 'inline-third';
+      const inlineThirdTitle = document.createElement('h4');
+      inlineThirdTitle.className = 'inline-third-title';
+      inlineThirdTitle.textContent = 'Матч за 3 место';
+      const inlineThirdSlot = document.createElement('div');
+      inlineThirdSlot.className = 'slot';
+      inlineThirdSlot.appendChild(makeMatchV2('third', state.rounds.length * 120));
+      inlineThird.append(inlineThirdTitle, inlineThirdSlot);
+      finalRound.appendChild(inlineThird);
+      $('#thirdHost').innerHTML = '';
+      $('#thirdSection').hidden = true;
+      $('.bottom').classList.add('no-third');
     } else if (state.format === 'double') {
       host.classList.add('multi-bracket');
       host.appendChild(roundsLane('Верхняя сетка', state.rounds, (index, total) => roundName(index, total)));
