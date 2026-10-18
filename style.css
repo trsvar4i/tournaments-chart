@@ -757,8 +757,7 @@ body.ceremony-open { overflow: hidden; }
   .format-badge { display: inline-block; margin: 6px 0 0; }
   .champ { max-width: calc(100vw - 64px); padding: 9px 13px; }
   .champ-name { max-width: 230px; font-size: 18px; }
-  .bottom { gap: 22px; margin-top: 26px; }
-  .podium { width: min(330px, calc(100vw - 64px)); gap: 7px; }
+  .bottom { display: none; }
   .step { padding: 10px 6px; }
   .step.s1 { height: 138px; }
   .step.s2 { height: 110px; }
