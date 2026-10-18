@@ -1058,6 +1058,44 @@
     catch { return []; }
   }
 
+  function historyTeam(team) {
+    if (team === BYE) return 'Автопроход';
+    return isTeam(team) ? team.name : 'Ожидание';
+  }
+
+  function historyMatch(match) {
+    return {
+      a: historyTeam(match.a),
+      b: historyTeam(match.b),
+      winner: isTeam(match.winner) ? match.winner.name : '',
+      score: Array.isArray(match.score) ? match.score : [0, 0],
+    };
+  }
+
+  function historyBracketSnapshot() {
+    const group = (label, rounds, titleForRound) => ({
+      label,
+      rounds: rounds.map((matches, index) => ({
+        title: titleForRound(index, rounds.length),
+        matches: matches.map(historyMatch),
+      })),
+    });
+    if (state.format === 'single') {
+      return [
+        group('Основная сетка', state.rounds, (index, total) => roundName(index, total)),
+        group('3 место', [[state.third]], () => 'Матч за 3 место'),
+      ];
+    }
+    if (state.format === 'double') {
+      return [
+        group('Верхняя сетка', state.rounds, (index, total) => roundName(index, total)),
+        group('Нижняя сетка', state.lowerRounds, index => `Раунд ${index + 1}`),
+        group('Гранд-финал', [state.grandMatches.filter(match => isTeam(match.a))], () => 'Финальные матчи'),
+      ];
+    }
+    return [group('Турнирная сетка', state.leagueRounds, index => `Раунд ${index + 1}`)];
+  }
+
   function saveHistory(summary) {
     if (state.historySaved || !summary.complete) return;
     const records = historyRecords();
@@ -1069,8 +1107,9 @@
       bestOf: state.bestOf,
       teams: state.teams.length,
       winners: [summary.first?.name, summary.second?.name, summary.third?.name],
+      bracket: historyBracketSnapshot(),
     });
-    try { localStorage.setItem('ts-history', JSON.stringify(records.slice(0, 30))); } catch {}
+    try { localStorage.setItem('ts-history', JSON.stringify(records.slice(0, 20))); } catch {}
     state.historySaved = true;
   }
 
@@ -1086,19 +1125,59 @@
       host.appendChild(empty);
       return;
     }
-    records.forEach(record => {
+    records.forEach((record, recordIndex) => {
       const item = document.createElement('article');
       item.className = 'history-item';
+      item.style.setProperty('--history-delay', `${Math.min(recordIndex, 8) * 55}ms`);
       const date = new Date(record.date).toLocaleString('ru-RU', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
-      item.innerHTML = `<div class="history-item-head"><strong></strong><span></span></div><p class="history-meta"></p><div class="history-winners"></div>`;
+      item.innerHTML = `<div class="history-item-head"><strong></strong><span></span></div><p class="history-meta"></p><div class="history-layout"><div class="history-bracket" aria-label="Турнирная сетка"></div><div class="history-winners" aria-label="Победители"></div></div>`;
       $('.history-item-head strong', item).textContent = record.title;
       $('.history-item-head span', item).textContent = date;
       $('.history-meta', item).textContent = `${FORMATS[record.format]?.label || record.format} · BO${record.bestOf} · ${record.teams} ${plural(record.teams, ['команда', 'команды', 'команд'])}`;
+      const bracket = $('.history-bracket', item);
+      if (Array.isArray(record.bracket) && record.bracket.length) {
+        record.bracket.forEach(group => {
+          const groupEl = document.createElement('div');
+          groupEl.className = 'history-bracket-group';
+          (group.rounds || []).forEach(round => {
+            const roundEl = document.createElement('section');
+            roundEl.className = 'history-round';
+            const roundTitle = document.createElement('h3');
+            roundTitle.className = 'history-round-title';
+            roundTitle.textContent = group.label ? `${group.label} · ${round.title}` : round.title;
+            roundEl.appendChild(roundTitle);
+            (round.matches || []).forEach(match => {
+              const matchEl = document.createElement('div');
+              matchEl.className = 'history-mini-match';
+              [match.a, match.b].forEach((name, side) => {
+                const teamEl = document.createElement('div');
+                teamEl.className = 'history-mini-team' + (match.winner === name ? ' won' : '');
+                const teamName = document.createElement('b');
+                teamName.textContent = name || 'Ожидание';
+                const score = document.createElement('em');
+                score.textContent = String(match.score?.[side] ?? 0);
+                teamEl.append(teamName, score);
+                matchEl.appendChild(teamEl);
+              });
+              roundEl.appendChild(matchEl);
+            });
+            groupEl.appendChild(roundEl);
+          });
+          bracket.appendChild(groupEl);
+        });
+      } else {
+        const legacy = document.createElement('p');
+        legacy.className = 'history-meta';
+        legacy.textContent = 'Сетка недоступна для старой записи.';
+        bracket.appendChild(legacy);
+      }
       const winners = $('.history-winners', item);
       (record.winners || []).forEach((name, index) => {
-        const chip = document.createElement('span');
-        chip.textContent = `${index + 1}. ${name || '—'}`;
-        winners.appendChild(chip);
+        const winner = document.createElement('div');
+        winner.className = 'history-winner';
+        winner.innerHTML = `<span class="history-winner-place">${index + 1}</span><span><strong></strong><small>${['Чемпион', 'Серебро', 'Бронза'][index]}</small></span>`;
+        $('strong', winner).textContent = name || '—';
+        winners.appendChild(winner);
       });
       host.appendChild(item);
     });
@@ -1123,6 +1202,7 @@
   }
 
   $('#historyToggle').addEventListener('click', openHistory);
+  $('#historyMenuBtn').addEventListener('click', openHistory);
   $('#historyClose').addEventListener('click', closeHistory);
   $('#historyModal').addEventListener('click', event => { if (event.target === event.currentTarget) closeHistory(); });
   $('#historyClear').addEventListener('click', () => {

@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=20261018-3">
+  <link rel="stylesheet" href="style.css?v=20261018-4">
   <script>
     // Применяем тему до отрисовки, чтобы не было «вспышки»
     (function () {
@@ -106,6 +106,13 @@
         <button class="btn primary big" id="startBtn" type="button">
           Провести жеребьёвку
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </button>
+        <button class="history-menu-btn" id="historyMenuBtn" type="button">
+          <span class="history-menu-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8M3 3v5h5"/><path d="M12 7v5l3 2"/></svg>
+          </span>
+          <span><strong>История турниров</strong><small>Сетки и призёры хранятся на этом устройстве</small></span>
+          <svg class="history-menu-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
         </button>
       </div>
 
@@ -244,6 +251,6 @@
   <button type="button" id="toastBtn" hidden></button>
 </div>
 
-<script src="script.js?v=20261018-3"></script>
+<script src="script.js?v=20261018-4"></script>
 </body>
 </html>
