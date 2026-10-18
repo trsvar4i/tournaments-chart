@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=20261018-6">
+  <link rel="stylesheet" href="style.css?v=20261018-7">
   <script>
     // Применяем тему до отрисовки, чтобы не было «вспышки»
     (function () {
@@ -166,6 +166,13 @@
 
     <p class="hint-line">Нажмите на команду, чтобы отправить её дальше. Повторный клик отменяет выбор.</p>
     <p class="swipe-hint" aria-hidden="true"><span>←</span> Листайте сетку вбок <span>→</span></p>
+    <div class="mobile-round-nav" id="mobileRoundNav" hidden>
+      <div>
+        <span class="mobile-round-kicker">Текущий этап</span>
+        <strong id="mobileRoundName">Раунд 1</strong>
+      </div>
+      <div class="mobile-round-dots" id="mobileRoundDots" aria-hidden="true"></div>
+    </div>
 
     <div class="stage-scroll">
       <div class="capture" id="capture">
@@ -257,6 +264,6 @@
   <button type="button" id="toastBtn" hidden></button>
 </div>
 
-<script src="script.js?v=20261018-6"></script>
+<script src="script.js?v=20261018-7"></script>
 </body>
 </html>

@@ -978,6 +978,8 @@
   function buildBracketDom() {
     const host = $('#bracket');
     host.innerHTML = '';
+    host.classList.toggle('mobile-carousel', state.format === 'single');
+    $('.stage-scroll').classList.toggle('round-gated', state.format === 'single');
     refs = { m: {}, links: [] };
     if (state.format === 'single') {
       const svg = document.createElementNS(NS, 'svg');
@@ -1282,7 +1284,47 @@
     Object.values(state.matchesByKey).forEach(match => paintMatch(refs.m[match.key], match));
     syncLinks();
     paintMetaV2(initial);
+    syncMobileRoundGate(initial);
   }
+
+  const mobileRoundMedia = matchMedia('(max-width: 640px)');
+
+  function syncMobileRoundGate(initial = false) {
+    const nav = $('#mobileRoundNav');
+    const stage = $('.stage-scroll');
+    const enabled = mobileRoundMedia.matches && state.format === 'single' && state.rounds.length;
+    nav.hidden = !enabled;
+    $('.swipe-hint').hidden = enabled;
+    stage.classList.toggle('round-gated', !!enabled);
+    if (!enabled) return;
+
+    let activeRound = state.rounds.findIndex(matches => matches.some(match => !match.winner));
+    if (activeRound < 0) activeRound = state.rounds.length - 1;
+    const rounds = $$('.bracket > .rounds > .round');
+    rounds.forEach((round, index) => {
+      const locked = index > activeRound;
+      round.classList.toggle('is-current', index === activeRound);
+      round.classList.toggle('is-locked', locked);
+      round.setAttribute('aria-hidden', String(locked));
+    });
+
+    $('#mobileRoundName').textContent = `${roundName(activeRound, state.rounds.length)} · ${activeRound + 1} из ${state.rounds.length}`;
+    const dots = $('#mobileRoundDots');
+    dots.innerHTML = state.rounds.map((_, index) => `<i class="${index < activeRound ? 'done' : index === activeRound ? 'active' : ''}"></i>`).join('');
+
+    const previous = Number(stage.dataset.mobileRound ?? -1);
+    stage.dataset.mobileRound = String(activeRound);
+    if (previous === activeRound && !initial) return;
+    requestAnimationFrame(() => {
+      const target = rounds[activeRound];
+      if (!target) return;
+      const left = Math.max(0, stage.scrollLeft + target.getBoundingClientRect().left - stage.getBoundingClientRect().left - 16);
+      stage.scrollTo({ left, behavior: initial ? 'auto' : 'smooth' });
+      if (!initial && previous >= 0) toast(`${roundName(activeRound, state.rounds.length)} открыт`);
+    });
+  }
+
+  mobileRoundMedia.addEventListener?.('change', () => syncMobileRoundGate(true));
 
   function buildTournament() {
     computeTournament();
