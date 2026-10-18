@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=20261018-4">
+  <link rel="stylesheet" href="style.css?v=20261018-5">
   <script>
     // Применяем тему до отрисовки, чтобы не было «вспышки»
     (function () {
@@ -144,15 +144,15 @@
         </div>
       </div>
       <div class="tb-right">
-        <button class="btn" id="shuffleBtn" type="button">
+        <button class="btn" id="shuffleBtn" type="button" aria-label="Перемешать команды" title="Перемешать команды">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 3h5v5M4 20 21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/></svg>
           Перемешать
         </button>
-        <button class="btn" id="resetBtn" type="button">
+        <button class="btn" id="resetBtn" type="button" aria-label="Сбросить результаты" title="Сбросить результаты">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8M3 3v5h5"/></svg>
           Сбросить
         </button>
-        <button class="btn primary" id="pngBtn" type="button">
+        <button class="btn primary" id="pngBtn" type="button" aria-label="Сохранить турнир в PNG" title="Сохранить турнир в PNG">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 10l5 5 5-5M4 21h16"/></svg>
           Сохранить PNG
         </button>
@@ -160,6 +160,7 @@
     </div>
 
     <p class="hint-line">Нажмите на команду, чтобы отправить её дальше. Повторный клик отменяет выбор.</p>
+    <p class="swipe-hint" aria-hidden="true"><span>←</span> Листайте сетку вбок <span>→</span></p>
 
     <div class="stage-scroll">
       <div class="capture" id="capture">
@@ -251,6 +252,6 @@
   <button type="button" id="toastBtn" hidden></button>
 </div>
 
-<script src="script.js?v=20261018-4"></script>
+<script src="script.js?v=20261018-5"></script>
 </body>
 </html>
