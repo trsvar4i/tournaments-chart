@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=20261018-5">
+  <link rel="stylesheet" href="style.css?v=20261018-6">
   <script>
     // Применяем тему до отрисовки, чтобы не было «вспышки»
     (function () {
@@ -104,7 +104,8 @@
         <p class="format-hint" id="formatHint"></p>
 
         <button class="btn primary big" id="startBtn" type="button">
-          Провести жеребьёвку
+          <span class="desktop-start-label">Провести жеребьёвку</span>
+          <span class="mobile-start-label">Добавить команды</span>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
         </button>
         <button class="history-menu-btn" id="historyMenuBtn" type="button">
@@ -116,7 +117,7 @@
         </button>
       </div>
 
-      <div class="panel">
+      <div class="panel teams-panel" id="teamsPanel">
         <div class="panel-head">
           <span class="label" id="namesTitle">Названия команд</span>
           <div class="panel-actions">
@@ -126,6 +127,10 @@
         </div>
         <div class="names" id="names"></div>
         <p class="hint">Пустое поле получит название «Команда N». Enter переходит к следующему полю.</p>
+        <button class="btn primary big mobile-draw-btn" id="mobileStartBtn" type="button">
+          Провести жеребьёвку
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </button>
       </div>
     </div>
   </section>
@@ -252,6 +257,6 @@
   <button type="button" id="toastBtn" hidden></button>
 </div>
 
-<script src="script.js?v=20261018-5"></script>
+<script src="script.js?v=20261018-6"></script>
 </body>
 </html>

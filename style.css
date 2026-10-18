@@ -307,6 +307,7 @@ html[data-theme="dark"] .btn { border-color: var(--line-strong); }
 .btn.big { width: 100%; height: 58px; font-size: 17px; border-radius: 14px; }
 .btn.big svg { transition: transform .3s var(--ease); }
 .btn.big:hover svg { transform: translateX(5px); }
+.mobile-start-label, .mobile-draw-btn { display: none; }
 
 .btn.primary { position: relative; overflow: hidden; isolation: isolate; }
 .btn.primary::after {
@@ -678,7 +679,7 @@ body.ceremony-open { overflow: hidden; }
   .top-actions { flex: none; gap: 6px; }
   .icon-btn { width: 40px; height: 40px; }
   .icon-btn svg { width: 19px; height: 19px; }
-  #historyToggle { display: none; }
+  #historyToggle { display: grid; }
 
   .view { padding-bottom: 44px; }
   .hero { padding: 32px 0 26px; }
@@ -700,6 +701,11 @@ body.ceremony-open { overflow: hidden; }
   .format-hint { margin-top: 12px; min-height: 0; }
   .select-input { width: 100%; min-width: 0; font-size: 16px; }
   .btn.big { height: 56px; font-size: 16px; }
+  .desktop-start-label, .history-menu-btn { display: none; }
+  .mobile-start-label { display: inline; }
+  .teams-panel { display: none; }
+  #setup.teams-step-active .teams-panel { display: block; animation: mobileTeamsIn .6s var(--ease) both; }
+  #setup.teams-step-active .mobile-draw-btn { display: inline-flex; margin-top: 18px; }
   .history-menu-btn { grid-template-columns: 38px minmax(0, 1fr) 18px; gap: 10px; padding: 11px 12px; }
   .history-menu-icon { width: 38px; height: 38px; }
   .history-menu-btn strong { font-size: 13px; }
@@ -781,6 +787,11 @@ body.ceremony-open { overflow: hidden; }
 @keyframes swipeNudge {
   from { transform: translateX(0); opacity: .55; }
   to { transform: translateX(3px); opacity: 1; }
+}
+
+@keyframes mobileTeamsIn {
+  from { opacity: 0; transform: translateY(18px) scale(.985); }
+  to { opacity: 1; transform: none; }
 }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }

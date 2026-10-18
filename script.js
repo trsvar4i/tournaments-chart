@@ -1373,7 +1373,20 @@
     recordPoint(button.closest('.match').dataset.key, +button.dataset.side);
   });
 
-  $('#startBtn').addEventListener('click', startTournament);
+  $('#startBtn').addEventListener('click', () => {
+    if (!matchMedia('(max-width: 640px)').matches) {
+      startTournament();
+      return;
+    }
+    const setup = $('#setup');
+    setup.classList.add('teams-step-active');
+    requestAnimationFrame(() => {
+      $('#teamsPanel').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      const firstEmpty = $$('#names input').find(input => !input.value.trim()) || $('#names input');
+      setTimeout(() => firstEmpty?.focus({ preventScroll: true }), 420);
+    });
+  });
+  $('#mobileStartBtn').addEventListener('click', startTournament);
   $('#backBtn').addEventListener('click', () => showView('setup'));
   $('#shuffleBtn').addEventListener('click', () => {
     prepareTournament(true);
