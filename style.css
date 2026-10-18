@@ -179,6 +179,21 @@ html[data-theme="dark"] .i-sun { opacity: 0; transform: rotate(90deg) scale(.4);
   font: 600 17px var(--font);
   transition: border-color .2s, box-shadow .2s;
 }
+.format-grid { display: grid; grid-template-columns: minmax(0, 1.45fr) minmax(110px, .55fr); gap: 12px; }
+.compact-field { margin: 0; }
+.select-input {
+  width: 100%; height: 46px;
+  padding: 0 38px 0 14px;
+  border: 1.5px solid var(--line-strong);
+  border-radius: 12px;
+  background: var(--surface);
+  color: var(--ink);
+  font: 700 14px var(--font);
+  outline: none;
+  cursor: pointer;
+}
+.select-input:focus-visible { border-color: var(--accent); box-shadow: 0 0 0 3px var(--ring); }
+.format-hint { min-height: 38px; margin: -6px 0 18px; color: var(--muted); font-size: 13px; }
 .text-input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 4px var(--accent-soft); }
 .text-input::placeholder { color: var(--muted); font-weight: 500; }
 
@@ -324,6 +339,7 @@ html[data-theme="dark"] .btn { border-color: var(--line-strong); }
 .cap-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 24px; margin-bottom: 22px; min-height: 66px; }
 .cap-title { font-size: 38px; line-height: 1.05; font-weight: 800; letter-spacing: -.03em; white-space: nowrap; max-width: 640px; overflow: hidden; text-overflow: ellipsis; }
 .cap-meta { margin-top: 6px; font: 500 13px var(--mono); color: var(--muted); letter-spacing: .02em; white-space: nowrap; }
+.format-badge { margin-left: 10px; padding: 3px 7px; border: 1px solid var(--line-strong); border-radius: 999px; color: var(--accent); font-size: 10px; text-transform: uppercase; }
 
 .champ {
   display: flex; align-items: center; gap: 12px;
@@ -347,6 +363,8 @@ html[data-theme="dark"] .btn { border-color: var(--line-strong); }
 .links .fill.on { stroke-dashoffset: 0; }
 
 .rounds { display: flex; gap: var(--gap-x); align-items: stretch; }
+.multi-bracket > .rounds + .bracket-lane-title { margin-top: 34px; }
+.bracket-lane-title { margin-bottom: 10px; font: 700 14px var(--font); letter-spacing: .02em; color: var(--accent); }
 .round { display: flex; flex-direction: column; width: var(--card-w); }
 .round-title {
   height: 40px; display: flex; align-items: center;
@@ -388,6 +406,15 @@ html[data-theme="dark"] .btn { border-color: var(--line-strong); }
 .team + .team { border-top: 1.5px solid var(--line); }
 .team .seed { width: 22px; flex: none; font: 500 11px var(--mono); color: var(--muted); }
 .team .tname { flex: 1; min-width: 0; font-weight: 600; font-size: 15px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.series-score {
+  min-width: 24px; height: 24px;
+  display: grid; place-items: center;
+  border: 1px solid var(--line-strong);
+  border-radius: 7px;
+  background: var(--bg);
+  font: 700 12px var(--mono);
+}
+.team.is-win .series-score { border-color: var(--accent); background: var(--accent); color: var(--accent-ink); }
 .team .tick {
   width: 20px; height: 20px; flex: none;
   display: grid; place-items: center;
@@ -416,6 +443,8 @@ html[data-theme="dark"] .btn { border-color: var(--line-strong); }
 
 /* ============ НИЗ: 3 МЕСТО + ПОДИУМ ============ */
 .bottom { display: grid; grid-template-columns: var(--card-w) minmax(0, 1fr); gap: 56px; align-items: end; margin-top: 34px; }
+.bottom.no-third { grid-template-columns: minmax(0, 1fr); }
+.bottom.no-third .podium { margin-left: auto; margin-right: auto; width: min(500px, 100%); }
 .bottom-title { font: 500 12px var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--muted); margin-bottom: 12px; height: 18px; }
 .podium { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; align-items: end; max-width: 500px; }
 .step {
@@ -439,10 +468,49 @@ html[data-theme="dark"] .btn { border-color: var(--line-strong); }
 .s1.filled { background: var(--gold-soft); border-color: var(--gold); }
 .step.bump { animation: pop .5s var(--ease); }
 
+.standings-wrap { width: min(720px, calc(100vw - 100px)); margin-top: 34px; }
+.standings { overflow: hidden; border: 1.5px solid var(--line-strong); border-radius: 14px; background: var(--surface); }
+.standing-row { display: grid; grid-template-columns: 38px minmax(150px, 1fr) 70px 80px; align-items: center; gap: 12px; min-height: 44px; padding: 0 14px; border-bottom: 1px solid var(--line); }
+.standing-row:last-child { border-bottom: 0; }
+.standing-place { color: var(--muted); font: 600 12px var(--mono); }
+.standing-row > span:not(.standing-place) { text-align: right; font: 600 12px var(--mono); }
+.standing-diff { color: var(--muted); }
+
 .cap-foot { margin-top: 26px; font: 500 11px var(--mono); letter-spacing: .18em; text-transform: uppercase; color: var(--muted); }
 
 /* ============ НАГРАЖДЕНИЕ / ТОСТ / КОНФЕТТИ ============ */
 body.ceremony-open { overflow: hidden; }
+.history-modal {
+  position: fixed; inset: 0; z-index: 85;
+  display: grid; place-items: center;
+  padding: 24px;
+  background: rgba(7, 10, 8, .76);
+  backdrop-filter: blur(8px);
+  opacity: 0;
+  transition: opacity .3s ease;
+}
+.history-modal.show { opacity: 1; }
+.history-card {
+  position: relative;
+  width: min(680px, 100%); max-height: min(760px, calc(100vh - 40px));
+  display: flex; flex-direction: column;
+  padding: 28px;
+  border: 1.5px solid var(--line-strong); border-radius: 24px;
+  background: var(--bg); box-shadow: 0 30px 90px rgba(0, 0, 0, .55);
+  transform: translateY(20px) scale(.97); transition: transform .45s var(--ease);
+}
+.history-modal.show .history-card { transform: none; }
+.history-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 20px; padding-right: 46px; }
+.history-head h2 { margin-top: 4px; font-size: 32px; letter-spacing: -.03em; }
+.history-list { display: grid; gap: 10px; margin-top: 22px; overflow-y: auto; }
+.history-item { padding: 16px; border: 1px solid var(--line); border-radius: 14px; background: var(--surface); }
+.history-item-head { display: flex; justify-content: space-between; gap: 16px; }
+.history-item-head span { flex: none; color: var(--muted); font: 500 10px var(--mono); }
+.history-meta { margin-top: 5px; color: var(--muted); font-size: 12px; }
+.history-winners { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+.history-winners span { padding: 5px 8px; border-radius: 8px; background: var(--gold-soft); font-size: 12px; font-weight: 700; }
+.history-empty { padding: 46px 20px; border: 1px dashed var(--line-strong); border-radius: 14px; color: var(--muted); text-align: center; }
+.history-clear { align-self: flex-start; margin-top: 18px; color: var(--muted); }
 .ceremony {
   position: fixed; inset: 0; z-index: 80;
   display: grid; place-items: center;
